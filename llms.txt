@@ -1,0 +1,89 @@
+# Portalix API
+
+Portalix is a SaaS platform that lets government organisations (orgs) create citizen-facing service portals. Each org can have multiple portals; each portal has its own citizens, request types, and requests.
+
+## Core concepts
+
+- **Org**: the organisation that owns the Portalix instance (e.g. a city hall). Created on sign-up.
+- **Portal**: a named service channel within an org (e.g. "Licenciamento Ambiental"). Citizens register per portal.
+- **Request type**: a category of service a citizen can request (e.g. "Licença de Instalação").
+- **Request**: a citizen submission tied to a portal and a request type.
+- **Org user**: an internal staff member who processes requests. Has org-level and portal-level roles.
+- **Citizen**: a member of the public who registers on a specific portal to submit requests.
+
+## Authentication
+
+All endpoints (except sign-up, verify-email, sign-in, and forgot-password) require a Bearer JWT in the `Authorization` header.
+
+Org users authenticate via `/auth/sign-in` and receive an `access_token` (JWT, type: "org_user") and a `refresh_token`.
+
+Citizens authenticate via `/citizen/{org_slug}/{portal_slug}/auth/sign-in` and receive an `access_token` (JWT, type: "citizen") scoped to that portal only.
+
+Use `POST /auth/refresh` or `POST /citizen/{org_slug}/{portal_slug}/auth/refresh` to renew tokens.
+
+## Base URL
+
+https://portalu-production.up.railway.app/api/v1
+
+## Guides
+
+- [Flow 1 — Org Setup](https://portalix-hlvr.readme.io/docs/flow-1-org-setup): sign up, verify email, create a portal, create request types
+- [Flow 2 — Internal User Onboarding](https://portalix-hlvr.readme.io/docs/flow-2-internal-user-onboarding): invite a user, assign org role, grant portal access
+- [Flow 3 — Citizen Submitting a Request](https://portalix-hlvr.readme.io/docs/flow-3-citizen-submitting-a-request): citizen sign-up, verify email, sign in, list request types, submit a request
+- [Flow 4 — Processing a Request](https://portalix-hlvr.readme.io/docs/flow-4-processing-a-request): list requests, update request status
+
+## Key endpoints
+
+### Org auth
+- POST /auth/sign-up — create org + super admin (requires org_name, name, email, password)
+- POST /auth/verify-email — verify email with token
+- POST /auth/sign-in — sign in, returns access_token + refresh_token
+- POST /auth/refresh — refresh access token
+- POST /auth/accept-invite — accept invitation and set password
+
+### Portals (org admin)
+- GET /org/portals — list portals
+- POST /org/portals — create portal (requires name; returns id and slug)
+- PATCH /org/portals/{portal_id} — update portal
+- DELETE /org/portals/{portal_id} — delete portal
+- GET /org/portals/{portal_id}/roles — list portal roles
+- POST /org/portals/{portal_id}/roles — create portal role with permissions
+- POST /org/portals/{portal_id}/users — assign org user to portal with role_id
+- DELETE /org/portals/{portal_id}/users/{user_id} — remove user from portal
+
+### Request types (org admin)
+- GET /org/portals/{portal_id}/request-types — list request types
+- POST /org/portals/{portal_id}/request-types — create request type
+- PATCH /org/portals/{portal_id}/request-types/{rt_id} — update
+- DELETE /org/portals/{portal_id}/request-types/{rt_id} — delete
+
+### Requests (org admin)
+- GET /org/portals/{portal_id}/requests — list all requests on portal
+- PATCH /org/portals/{portal_id}/requests/{request_id} — update status or title
+
+### Citizen auth (scoped to portal)
+- POST /citizen/{org_slug}/{portal_slug}/auth/sign-up
+- POST /citizen/{org_slug}/{portal_slug}/auth/verify-email
+- POST /citizen/{org_slug}/{portal_slug}/auth/sign-in
+- POST /citizen/{org_slug}/{portal_slug}/auth/refresh
+- POST /citizen/{org_slug}/{portal_slug}/auth/sign-out
+- POST /citizen/{org_slug}/{portal_slug}/auth/forgot-password
+- POST /citizen/{org_slug}/{portal_slug}/auth/reset-password
+
+### Citizen requests (scoped to portal)
+- GET /citizen/{org_slug}/{portal_slug}/request-types — list available request types
+- GET /citizen/{org_slug}/{portal_slug}/requests — list my requests
+- POST /citizen/{org_slug}/{portal_slug}/requests — submit a request (requires request_type_id, title)
+- GET /citizen/{org_slug}/{portal_slug}/requests/{request_id} — get a specific request
+
+### Org users
+- GET /org/users — list users
+- POST /org/users — invite a user (requires email; sends invitation email)
+- GET /org/users/{user_id} — get user
+- PATCH /org/users/{user_id} — update user
+- POST /org/users/{user_id}/roles — assign org role
+- DELETE /org/users/{user_id}/roles/{role_id} — remove org role
+
+### Org settings
+- GET /org/settings — get org settings (lockout, MFA, citizen identity scope)
+- PATCH /org/settings — update org settings
