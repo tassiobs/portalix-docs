@@ -1,0 +1,13 @@
+- clientsignup
+- clientsignin
+- clientrequestmagiclink
+- clientverifymagiclink
+- clientexchangetoken
+- clientsignout
+- clientgetme
+- clientupdateme
+- clientforgotpassword
+- clientresetpassword
+- clientrefreshtoken
+- clientverifyemailchange
+- clientrequestaccountdeletion

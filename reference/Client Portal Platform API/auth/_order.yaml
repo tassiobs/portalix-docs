@@ -1,0 +1,17 @@
+- signup
+- verifyemail
+- resendverification
+- signin
+- signout
+- getme
+- updateme
+- forgotpassword
+- resetpassword
+- acceptinvite
+- refreshtoken
+- enrollmfa
+- confirmmfaenrollment
+- mfachallenge
+- disablemfa
+- verifyemailchange
+- requestaccountdeletion
