@@ -8,7 +8,7 @@ hidden: false
 
 **What it covers**: sign up → verify email → sign in → create a portal → create request types.
 
-> **Before you start**: All endpoints (except those marked `security: []`) require a Bearer JWT in the `Authorization` header. This flow shows you where to get one.
+> **Before you start**: all endpoints (except those marked public) require a Bearer JWT in the `Authorization` header. This flow shows you where to get one.
 
 ---
 
@@ -34,25 +34,30 @@ Content-Type: application/json
     "email_verified": false,
     "status": "active"
   },
-  "message": "Account created. Please check your email to verify your account.",
-  "verification_token": "<token>"
+  "message": "Account created. Please check your email to verify your account."
 }
 ```
 
-A verification email is sent immediately. The account cannot sign in until the email is verified.
-
-> **During development**: the `verification_token` is also returned in the response body so you can verify without email access.
+A verification email is sent immediately. If email delivery fails, the request returns `503` and nothing is created — you can try again. The account cannot sign in until the email is verified.
 
 ---
 
 ### 2. Verify email
+
+Click the link in the email. It points to:
+
+```
+/{org_slug}/{portal_slug}/verify-email?token=...
+```
+
+The frontend reads the `token` from the query string and calls:
 
 ```http
 POST /auth/verify-email
 Content-Type: application/json
 
 {
-  "token": "<verification_token from step 1>"
+  "token": "<token from email link>"
 }
 ```
 
@@ -60,6 +65,15 @@ Content-Type: application/json
 {
   "message": "Email verified. You can now sign in."
 }
+```
+
+If you didn't receive the email:
+
+```http
+POST /auth/resend-verification
+Content-Type: application/json
+
+{ "email": "tassio@prefeitura.gov.br" }
 ```
 
 ---
@@ -86,7 +100,8 @@ Content-Type: application/json
     "email": "tassio@prefeitura.gov.br",
     "email_verified": true,
     "status": "active",
-    "org_roles": [{ "name": "Super Admin", "permissions": ["org.users.manage", ...] }]
+    "org_roles": [{ "name": "Super Admin", "permissions": ["org.users.manage", "..."] }],
+    "portal_roles": []
   }
 }
 ```
@@ -99,10 +114,10 @@ When the access token expires, use the refresh token:
 POST /auth/refresh
 Content-Type: application/json
 
-{
-  "refresh_token": "<refresh_token>"
-}
+{ "refresh_token": "<refresh_token>" }
 ```
+
+> **Note**: refresh tokens are invalidated after a password reset. Any refresh token issued before the reset will be rejected.
 
 ---
 
@@ -131,9 +146,9 @@ Content-Type: application/json
 }
 ```
 
-Note the `id` and `slug` — you'll use `id` for admin API calls and `slug` for citizen-facing URLs.
+Note the `id` and `slug` — you'll use `id` for admin API calls and `slug` for client-facing URLs.
 
-The citizen portal will be accessible at:
+The client portal will be accessible at:
 ```
 /{org-slug}/{portal-slug}
 ```
@@ -142,7 +157,7 @@ The citizen portal will be accessible at:
 
 ### 5. Create request types
 
-Request types define what citizens can submit on this portal.
+Request types define what clients can submit on this portal.
 
 ```http
 POST /org/portals/p9q8r7.../request-types
@@ -165,7 +180,7 @@ Content-Type: application/json
 }
 ```
 
-Create as many request types as needed. Citizens will choose from this list when submitting a request.
+Create as many request types as needed. Clients will choose from this list when submitting a request.
 
 ---
 

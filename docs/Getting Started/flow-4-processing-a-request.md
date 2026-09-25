@@ -4,9 +4,11 @@ excerpt: List open requests on a portal and update a request status.
 hidden: false
 ---
 
-**Who runs this**: an internal user (Ana) with access to the portal.
+**Who runs this**: an internal user (Ana) with portal access.
 
 **What it covers**: list open requests → view a request → update its status.
+
+> **Prerequisite**: Ana must have been assigned to this portal with a role that includes `portal.requests:read` and `portal.requests:update`. See [Flow 2](./flow-2-internal-user-onboarding).
 
 ---
 
@@ -59,6 +61,8 @@ Content-Type: application/json
 }
 ```
 
+`status` is a free string — use whatever values fit your workflow (e.g. `open`, `in_review`, `approved`, `rejected`, `completed`). The client sees this value on their dashboard.
+
 You can also update the `title` in the same call:
 
 ```http
@@ -76,6 +80,6 @@ Content-Type: application/json
 
 ## What's Next
 
-- **Portal Roles** — create custom roles with specific permissions: `POST /org/portals/{portal_id}/roles`
-- **Org Settings** — configure lockout policies and MFA requirements: `GET /org/settings`
+- **Roles** — create custom org or portal roles with specific permissions: `POST /org/roles`
+- **Org Settings** — configure lockout policies: `GET /org/settings`
 - **Full API reference** — every endpoint: see the API Reference section

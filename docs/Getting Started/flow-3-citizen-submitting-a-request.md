@@ -1,20 +1,42 @@
 ---
-title: "Flow 3 — Citizen Submitting a Request"
+title: "Flow 3 — Client Submitting a Request"
 excerpt: Sign up on a portal, verify email, sign in, and submit a request.
 hidden: false
 ---
 
-**Who runs this**: a citizen accessing the portal.
+**Who runs this**: a client accessing the portal.
 
-**What it covers**: sign up → verify email → sign in → list request types → submit a request.
+**What it covers**: sign up → verify email → sign in → browse request types → submit a request.
 
-> **Note**: all citizen endpoints are scoped to a specific org and portal via the URL path. A citizen account on one portal cannot be used on another.
+> **Note**: clients have one account per org. The same email and password works on any portal under the same org. When signing in at a specific portal URL, the session is scoped to that portal.
 
 ---
 
-### 1. Sign up on the portal
+### 1. Browse available request types (no login required)
 
-The citizen registers using the org slug and portal slug from Flow 1.
+Request types are public — clients can see what services are available before signing up.
+
+```http
+GET /citizen/{org_slug}/{portal_slug}/request-types
+```
+
+```json
+[
+  {
+    "id": "rt1rt2...",
+    "portal_id": "p9q8r7...",
+    "name": "Licença de Instalação",
+    "description": "Solicitação de licença para instalação de estabelecimento",
+    "created_at": "2026-09-21T14:01:00Z"
+  }
+]
+```
+
+---
+
+### 2. Sign up
+
+The client registers using the org slug and portal slug from the URL.
 
 ```http
 POST /citizen/{org_slug}/{portal_slug}/auth/sign-up
@@ -31,30 +53,36 @@ Content-Type: application/json
 {
   "citizen": {
     "id": "c1d2e3...",
-    "portal_id": "p9q8r7...",
+    "org_id": "o1o2o3...",
     "name": "João Silva",
     "email": "joao@empresa.com.br",
     "email_verified": false,
     "status": "active",
     "created_at": "2026-09-21T14:20:00Z"
   },
-  "message": "Account created. Please check your email to verify your account.",
-  "verification_token": "<token>"
+  "message": "Account created. Please check your email to verify your account."
 }
 ```
 
-> **During development**: the `verification_token` is also returned in the response body so you can verify without email access.
+A verification email is sent immediately. If email delivery fails, the request returns `503` and no account is created.
 
 ---
 
-### 2. Verify email
+### 3. Verify email
+
+The email contains a link to:
+```
+/{org_slug}/{portal_slug}/verify-email?token=...
+```
+
+The frontend reads the `token` from the query string and calls:
 
 ```http
 POST /citizen/{org_slug}/{portal_slug}/auth/verify-email
 Content-Type: application/json
 
 {
-  "token": "<verification_token from step 1>"
+  "token": "<token from email link>"
 }
 ```
 
@@ -66,7 +94,7 @@ Content-Type: application/json
 
 ---
 
-### 3. Sign in
+### 4. Sign in
 
 ```http
 POST /citizen/{org_slug}/{portal_slug}/auth/sign-in
@@ -85,7 +113,7 @@ Content-Type: application/json
   "token_type": "bearer",
   "citizen": {
     "id": "c1d2e3...",
-    "portal_id": "p9q8r7...",
+    "org_id": "o1o2o3...",
     "name": "João Silva",
     "email": "joao@empresa.com.br",
     "email_verified": true,
@@ -95,27 +123,22 @@ Content-Type: application/json
 }
 ```
 
-Store the `access_token` — every subsequent citizen request needs `Authorization: Bearer <access_token>`.
+Store the `access_token` — every subsequent request needs `Authorization: Bearer <access_token>`.
 
----
-
-### 4. Browse available request types
+To get the current client's profile at any time:
 
 ```http
-GET /citizen/{org_slug}/{portal_slug}/request-types
+GET /citizen/{org_slug}/{portal_slug}/auth/me
 Authorization: Bearer <access_token>
 ```
 
-```json
-[
-  {
-    "id": "rt1rt2...",
-    "portal_id": "p9q8r7...",
-    "name": "Licença de Instalação",
-    "description": "Solicitação de licença para instalação de estabelecimento",
-    "created_at": "2026-09-21T14:01:00Z"
-  }
-]
+When the access token expires, use the refresh token:
+
+```http
+POST /citizen/{org_slug}/{portal_slug}/auth/refresh
+Content-Type: application/json
+
+{ "refresh_token": "<refresh_token>" }
 ```
 
 ---
@@ -138,6 +161,7 @@ Content-Type: application/json
   "id": "req123...",
   "portal_id": "p9q8r7...",
   "request_type_id": "rt1rt2...",
+  "request_type_name": "Licença de Instalação",
   "citizen_id": "c1d2e3...",
   "title": "Solicitação de Licença - Galpão Industrial",
   "status": "open",
@@ -145,7 +169,7 @@ Content-Type: application/json
 }
 ```
 
-João can check on his request at any time:
+João can check on his requests at any time:
 
 ```http
 GET /citizen/{org_slug}/{portal_slug}/requests

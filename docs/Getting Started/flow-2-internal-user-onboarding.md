@@ -31,14 +31,25 @@ Content-Type: application/json
   "email_verified": false,
   "status": "active",
   "org_roles": [],
-  "created_at": "2026-09-21T14:10:00Z",
-  "invitation_token": "<token>"
+  "portal_roles": [],
+  "created_at": "2026-09-21T14:10:00Z"
 }
 ```
 
-An invitation email is sent to Ana with a link to set her password. The `invitation_token` is also returned in the response body for development convenience.
+An invitation email is sent to Ana with a link to set her password. If email delivery fails, the request returns `503` and no user is created.
 
-> **During development**: use `POST /auth/accept-invite` with `{ "token": "<invitation_token>", "password": "..." }` to accept the invite without email access.
+Ana accepts by clicking the link in the email, which calls:
+
+```http
+POST /auth/accept-invite
+Content-Type: application/json
+
+{
+  "token": "<token from email>",
+  "password": "newpassword123",
+  "name": "Ana Lima"
+}
+```
 
 ---
 
@@ -50,6 +61,13 @@ First, list available org roles:
 
 ```http
 GET /org/roles
+Authorization: Bearer <access_token>
+```
+
+To see only portal-level roles:
+
+```http
+GET /org/roles?level=portal
 Authorization: Bearer <access_token>
 ```
 
@@ -71,10 +89,10 @@ Returns `204 No Content` on success.
 
 ### 3. Add her to a portal
 
-Portal access is separate from org access. Get the portal roles first:
+Portal access is separate from org access. First get the available portal-level roles:
 
 ```http
-GET /org/portals/p9q8r7.../roles
+GET /org/roles?level=portal
 Authorization: Bearer <access_token>
 ```
 
@@ -82,11 +100,10 @@ Authorization: Bearer <access_token>
 [
   {
     "id": "role-abc...",
-    "portal_id": "p9q8r7...",
-    "name": "Portal Super Admin",
-    "description": null,
+    "name": "Portal Manager",
+    "level": "portal",
     "permissions": ["portal.requests:read", "portal.requests:update", "portal.request_types:manage", "portal.users:manage", "portal.settings:manage"],
-    "is_default": true,
+    "is_default": false,
     "created_at": "2026-09-21T14:01:00Z"
   }
 ]
@@ -105,8 +122,31 @@ Content-Type: application/json
 }
 ```
 
-Returns `204 No Content`. Ana can now access this portal and act according to her assigned portal role's permissions.
+Returns `204 No Content`. Ana can now access this portal and act according to her portal role's permissions.
+
+To see what permissions are available for portal roles:
+
+```http
+GET /org/portals/permissions
+Authorization: Bearer <access_token>
+```
 
 ---
 
-**Next**: [Flow 3 — Citizen Submitting a Request](./flow-3-citizen-submitting-a-request)
+### Permission enforcement
+
+Portal routes enforce permissions automatically:
+
+| Action | Required permission |
+|---|---|
+| Update portal settings | `portal.settings:manage` |
+| Assign/remove portal users | `portal.users:manage` |
+| Manage request types | `portal.request_types:manage` |
+| View requests | `portal.requests:read` |
+| Update requests | `portal.requests:update` |
+
+Org super admins and users with `org.users.manage` or `org.portals.manage` bypass all portal permission checks.
+
+---
+
+**Next**: [Flow 3 — Client Submitting a Request](./flow-3-citizen-submitting-a-request)

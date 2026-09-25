@@ -30,10 +30,10 @@ https://portalu-production.up.railway.app/api/v1
 
 ## Guides
 
-- [Flow 1 — Org Setup](https://portalix-hlvr.readme.io/docs/flow-1-org-setup): sign up, verify email, create a portal, create request types
-- [Flow 2 — Internal User Onboarding](https://portalix-hlvr.readme.io/docs/flow-2-internal-user-onboarding): invite a user, assign org role, grant portal access
-- [Flow 3 — Client Submitting a Request](https://portalix-hlvr.readme.io/docs/flow-3-citizen-submitting-a-request): client sign-up, verify email, sign in, list request types, submit a request
-- [Flow 4 — Processing a Request](https://portalix-hlvr.readme.io/docs/flow-4-processing-a-request): list requests, update request status
+- [Flow 1 — Org Setup](https://raw.githubusercontent.com/tassiobs/portalix-docs/v1.0/docs/Getting%20Started/flow-1-org-setup.md): sign up, verify email, create a portal, create request types
+- [Flow 2 — Internal User Onboarding](https://raw.githubusercontent.com/tassiobs/portalix-docs/v1.0/docs/Getting%20Started/flow-2-internal-user-onboarding.md): invite a user, assign org role, grant portal access
+- [Flow 3 — Client Submitting a Request](https://raw.githubusercontent.com/tassiobs/portalix-docs/v1.0/docs/Getting%20Started/flow-3-citizen-submitting-a-request.md): client sign-up, verify email, sign in, browse request types, submit a request
+- [Flow 4 — Processing a Request](https://raw.githubusercontent.com/tassiobs/portalix-docs/v1.0/docs/Getting%20Started/flow-4-processing-a-request.md): list requests, update request status
 
 ## Key endpoints
 
