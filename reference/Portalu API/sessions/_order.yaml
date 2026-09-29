@@ -1,0 +1,3 @@
+- list_sessions_api_v1_auth_sessions_get
+- revoke_all_sessions_api_v1_auth_sessions_delete
+- revoke_session_api_v1_auth_sessions__session_id__delete

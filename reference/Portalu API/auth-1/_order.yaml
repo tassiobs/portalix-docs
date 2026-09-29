@@ -1,0 +1,11 @@
+- sign_up_api_v1_auth_sign_up_post
+- verify_email_api_v1_auth_verify_email_post
+- resend_verification_api_v1_auth_resend_verification_post
+- sign_in_api_v1_auth_sign_in_post
+- refresh_api_v1_auth_refresh_post
+- sign_out_api_v1_auth_sign_out_post
+- forgot_password_api_v1_auth_forgot_password_post
+- reset_password_api_v1_auth_reset_password_post
+- accept_invite_api_v1_auth_accept_invite_post
+- get_me_api_v1_auth_me_get
+- update_me_api_v1_auth_me_patch
