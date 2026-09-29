@@ -4,6 +4,12 @@
     "title": "Portalu API",
     "version": "2.3.0"
   },
+  "servers": [
+    {
+      "url": "https://portalu-production.up.railway.app",
+      "description": "Production"
+    }
+  ],
   "paths": {
     "/api/v1/auth/sign-up": {
       "post": {
