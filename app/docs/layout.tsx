@@ -8,6 +8,9 @@ const nav = [
       { href: '/docs/guides/concepts', label: 'Concepts' },
       { href: '/docs/guides/getting-started', label: 'Getting Started' },
       { href: '/docs/guides/citizen-ui', label: 'Building the Citizen UI' },
+      { href: '/docs/guides/admin-ui', label: 'Building the Admin UI' },
+      { href: '/docs/guides/error-handling', label: 'Error Handling' },
+      { href: '/docs/guides/rbac', label: 'RBAC for UI' },
     ],
   },
   {
