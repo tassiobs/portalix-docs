@@ -37,7 +37,16 @@ export default function ReferencePage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">API Reference</h1>
+      <div className="flex items-start justify-between mb-1">
+        <h1 className="text-2xl font-bold text-gray-900">API Reference</h1>
+        <a
+          href="/openapi.json"
+          download="openapi.json"
+          className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-1"
+        >
+          ↓ Download OpenAPI spec
+        </a>
+      </div>
       <p className="text-gray-500 mb-8">
         Version <strong>{version}</strong> · Base URL:{' '}
         <code className="text-sm bg-gray-100 px-1.5 py-0.5 rounded">{baseUrl}</code>
