@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to the **Portalu API** docs. This guide walks you through authenticating and making your first request.
+This guide walks through the complete self-serve setup — from creating your account to having a live citizen-facing portal ready to receive requests.
 
 ## Base URL
 
@@ -10,47 +10,177 @@ All API requests are made to:
 https://portalu-production.up.railway.app
 ```
 
-## Authentication
+---
 
-The API uses **Bearer token** authentication. After signing in, include the access token in every request:
+## Step 1 — Create your org
 
-```
-Authorization: Bearer <access_token>
-```
-
-{% callout type="tip" title="Token Refresh" %}
-Access tokens expire. Use the `/api/v1/auth/refresh` endpoint to get a new one using your refresh token.
-{% /callout %}
-
-## Your First Request
-
-### 1. Sign Up
+A single sign-up call creates both your user account and your organization.
 
 ```http
 POST /api/v1/auth/sign-up
 Content-Type: application/json
 
 {
-  "org_name": "Acme Corp",
-  "email": "you@acme.com",
-  "password": "yourpassword"
+  "org_name": "City of Springfield",
+  "name": "Jane Doe",
+  "email": "jane@springfield.gov",
+  "password": "s3cur3pass!"
 }
 ```
 
-### 2. Sign In
+Check your email and verify your account:
+
+```http
+POST /api/v1/auth/verify-email
+Content-Type: application/json
+
+{ "token": "<token from email>" }
+```
+
+Then sign in to get your access token:
 
 ```http
 POST /api/v1/auth/sign-in
 Content-Type: application/json
 
 {
-  "email": "you@acme.com",
-  "password": "yourpassword"
+  "email": "jane@springfield.gov",
+  "password": "s3cur3pass!"
 }
 ```
 
-You'll receive an `access_token` and `refresh_token` in the response.
+The response includes `access_token` — include it as `Authorization: Bearer <token>` in all subsequent requests.
 
-{% callout type="note" %}
-Keep your refresh token secure — it can be used to generate new access tokens.
+{% callout type="tip" title="Token Refresh" %}
+Access tokens expire. Use `POST /api/v1/auth/refresh` with your `refresh_token` to get a new one.
 {% /callout %}
+
+### Optional — set a custom org slug
+
+The org slug appears in every citizen-facing URL (`/citizen/{org_slug}/...`). You can customize it:
+
+```http
+PATCH /api/v1/org
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "City of Springfield",
+  "slug": "springfield"
+}
+```
+
+Org slugs are globally unique — you'll get a `409 Conflict` if it's already taken.
+
+---
+
+## Step 2 — Create a portal
+
+A portal is the citizen-facing surface where users sign up and submit requests. You can have multiple portals per org.
+
+```http
+POST /api/v1/org/portals
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Permits & Licenses",
+  "slug": "permits",
+  "description": "Apply for building permits and business licenses.",
+  "domain": "permits.springfield.gov"
+}
+```
+
+The `slug` is optional — auto-generated from `name` if omitted. Portal slugs are unique within your org.
+
+Once created, citizens can discover the portal at:
+
+```http
+GET /api/v1/citizen/springfield/permits
+```
+
+This endpoint is public (no auth required) and returns the portal's name, slug, and description — useful for building a landing page before the citizen signs up.
+
+---
+
+## Step 3 — Define request types
+
+Request types are the services your portal offers. Each has a name, optional description, and custom fields.
+
+```http
+POST /api/v1/org/portals/{portal_id}/request-types
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Building Permit",
+  "description": "Request a permit for construction or renovation."
+}
+```
+
+Add fields to capture information from citizens:
+
+```http
+POST /api/v1/org/portals/{portal_id}/request-types/{rt_id}/fields
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "label": "Project Description",
+  "field_type": "textarea",
+  "required": true,
+  "order": 0
+}
+```
+
+Supported field types: `text`, `textarea`, `number`, `date`, `select`.
+
+### Optional — set up a workflow
+
+If requests need review steps, define a workflow:
+
+```http
+PUT /api/v1/org/portals/{portal_id}/request-types/{rt_id}/workflow
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "tasks": [
+    {
+      "key": "initial_review",
+      "name": "Initial Review",
+      "assignee_role": "reviewer",
+      "deadline_offset_hours": 48
+    },
+    {
+      "key": "final_approval",
+      "name": "Final Approval",
+      "assignee_role": "approver",
+      "depends_on": ["initial_review"]
+    }
+  ]
+}
+```
+
+Tasks activate in dependency order and can be assigned to a role or a specific user.
+
+---
+
+## Step 4 — Go live
+
+With the portal and request types in place, your citizen-facing app can:
+
+1. **Show a landing page** — `GET /citizen/{org_slug}/{portal_slug}` (public, no auth)
+2. **Let citizens sign up** — `POST /citizen/{org_slug}/{portal_slug}/auth/sign-up`
+3. **List available services** — `GET /citizen/{org_slug}/{portal_slug}/request-types`
+4. **Accept submissions** — `POST /citizen/{org_slug}/{portal_slug}/requests`
+
+Citizens track their submissions via `GET /citizen/{org_slug}/{portal_slug}/requests`.
+
+---
+
+## What's next
+
+- Invite team members via `POST /org/invitations` and assign them to portals
+- Configure lockout and MFA policies via `PATCH /org/settings`
+- Monitor and process requests via `GET /org/portals/{portal_id}/requests`
