@@ -5,7 +5,9 @@ const nav = [
     title: 'Guides',
     links: [
       { href: '/docs/guides/introduction', label: 'Introduction' },
+      { href: '/docs/guides/concepts', label: 'Concepts' },
       { href: '/docs/guides/getting-started', label: 'Getting Started' },
+      { href: '/docs/guides/citizen-ui', label: 'Building the Citizen UI' },
     ],
   },
   {

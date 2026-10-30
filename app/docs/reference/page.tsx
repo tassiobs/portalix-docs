@@ -39,14 +39,14 @@ export default function ReferencePage() {
     <div className="max-w-3xl">
       <div className="flex items-start justify-between mb-1">
         <h1 className="text-2xl font-bold text-gray-900">API Reference</h1>
-        <a
-          href="/openapi.json"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-1"
-        >
-          ↗ View OpenAPI spec
-        </a>
+        <div className="flex flex-col items-end gap-1 mt-1">
+          <a href="/openapi.json" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+            ↗ View OpenAPI spec
+          </a>
+          <a href="/llms.txt" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+            ↗ llms.txt
+          </a>
+        </div>
       </div>
       <p className="text-gray-500 mb-8">
         Version <strong>{version}</strong> · Base URL:{' '}
