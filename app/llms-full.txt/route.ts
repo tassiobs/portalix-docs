@@ -46,7 +46,13 @@ export async function GET() {
   const apiBase = spec.servers?.[0]?.url ?? 'https://portalu-production.up.railway.app'
   const version = spec.info?.version ?? ''
 
-  const guides = ['introduction', 'concepts', 'getting-started', 'citizen-ui']
+  const guideOrder = ['introduction', 'concepts', 'getting-started', 'citizen-ui', 'admin-ui', 'error-handling', 'rbac']
+  const guideDir = path.join(process.cwd(), 'content/guides')
+  const allSlugs = fs.readdirSync(guideDir).filter(f => f.endsWith('.md')).map(f => f.replace(/\.md$/, ''))
+  const ordered = guideOrder.filter(s => allSlugs.includes(s))
+  const rest = allSlugs.filter(s => !guideOrder.includes(s)).sort()
+  const guides = [...ordered, ...rest]
+
   const guideSections = guides
     .map(slug => readGuide(slug))
     .filter(Boolean)
