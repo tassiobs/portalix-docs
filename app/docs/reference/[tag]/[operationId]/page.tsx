@@ -1,9 +1,11 @@
 import { getOpenApiSpec } from '@/lib/openapi'
 import { resolveSchema, resolveRef, slugifyOperationId } from '@/lib/schema'
+import { generateCurl } from '@/lib/curl'
 import { MethodBadge } from '@/components/MethodBadge'
 import { ParamTable } from '@/components/ParamTable'
 import { SchemaTable } from '@/components/SchemaTable'
 import { StatusBadge } from '@/components/StatusBadge'
+import { CodeBlock } from '@/components/CodeBlock'
 import { notFound } from 'next/navigation'
 
 export async function generateStaticParams() {
@@ -14,8 +16,7 @@ export async function generateStaticParams() {
     for (const op of Object.values(methods as Record<string, any>)) {
       if (op.operationId) {
         const tag = op.tags?.[0] ?? 'other'
-        const tagSlug = tagSlugFor(tag)
-        params.push({ tag: tagSlug, operationId: slugifyOperationId(op.operationId) })
+        params.push({ tag: tagSlugFor(tag), operationId: slugifyOperationId(op.operationId) })
       }
     }
   }
@@ -47,6 +48,7 @@ export default async function EndpointPage({
   const { operationId } = await params
   const spec = getOpenApiSpec()
   const components = spec.components
+  const baseUrl = spec.servers?.[0]?.url ?? ''
 
   let found: { method: string; path: string; op: any } | null = null
 
@@ -75,6 +77,16 @@ export default async function EndpointPage({
     requestBodySchema = resolveSchema(requestBodyContent, components)
   }
 
+  const curlExample = generateCurl({
+    method,
+    path,
+    baseUrl,
+    requiresAuth,
+    pathParams,
+    queryParams,
+    requestBodySchema,
+  })
+
   return (
     <div className="max-w-3xl">
       <div className="flex items-center gap-3 mb-2">
@@ -99,6 +111,11 @@ export default async function EndpointPage({
       {op.description && (
         <p className="text-gray-600 mb-6">{op.description}</p>
       )}
+
+      <section className="mb-6">
+        <h2 className="text-base font-semibold text-gray-800 mb-2">Example Request</h2>
+        <CodeBlock code={curlExample} language="bash" />
+      </section>
 
       {pathParams.length > 0 && (
         <section className="mb-6">
@@ -158,10 +175,7 @@ export default async function EndpointPage({
           Validation errors return <StatusBadge code="422" /> with the following structure:
         </p>
         <SchemaTable
-          properties={resolveSchema(
-            components.schemas.HTTPValidationError,
-            components
-          )}
+          properties={resolveSchema(components.schemas.HTTPValidationError, components)}
         />
       </section>
     </div>
