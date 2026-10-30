@@ -7,6 +7,12 @@ export type SchemaProperty = {
   description?: string
   enum?: string[]
   nullable: boolean
+  minLength?: number
+  maxLength?: number
+  minimum?: number
+  maximum?: number
+  pattern?: string
+  example?: unknown
   properties?: SchemaProperty[]
 }
 
@@ -46,9 +52,16 @@ export function resolveSchema(schema: any, components: any, depth = 0): SchemaPr
         type: inner.type ?? (inner.$ref ? inner.$ref.split('/').pop() : 'object'),
         format: inner.format,
         required: required.includes(name),
-        default: resolved.default,
+        default: resolved.default ?? inner.default,
+        description: resolved.description ?? inner.description,
         nullable: isNullable,
         enum: inner.enum,
+        minLength: inner.minLength,
+        maxLength: inner.maxLength,
+        minimum: inner.minimum,
+        maximum: inner.maximum,
+        pattern: inner.pattern,
+        example: resolved.examples?.[0] ?? inner.example,
         properties:
           depth < 2 && (inner.type === 'object' || inner.properties)
             ? resolveSchema(inner, components, depth + 1)
