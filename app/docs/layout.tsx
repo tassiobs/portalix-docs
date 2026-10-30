@@ -27,20 +27,9 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 shrink-0 border-r border-gray-200 bg-gray-50 p-6 hidden md:block">
-        <Link href="/" className="text-lg font-bold text-gray-900 mb-6 block">
+        <Link href="/" className="text-lg font-bold text-gray-900 mb-8 block">
           Portalu API
         </Link>
-        <div className="flex flex-col gap-1 mb-6">
-          <a href="/openapi.json" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
-            ↗ OpenAPI spec
-          </a>
-          <a href="/llms.txt" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
-            ↗ llms.txt
-          </a>
-          <a href="/llms-full.txt" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
-            ↗ llms-full.txt
-          </a>
-        </div>
         <nav className="space-y-6">
           {nav.map((section) => (
             <div key={section.title}>
