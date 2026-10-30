@@ -41,10 +41,11 @@ export default function ReferencePage() {
         <h1 className="text-2xl font-bold text-gray-900">API Reference</h1>
         <a
           href="/openapi.json"
-          download="openapi.json"
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-1"
         >
-          ↓ Download OpenAPI spec
+          ↗ View OpenAPI spec
         </a>
       </div>
       <p className="text-gray-500 mb-8">
