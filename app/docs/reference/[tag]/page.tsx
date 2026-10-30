@@ -7,9 +7,9 @@ import Link from 'next/link'
 const tagMap: Record<string, string[]> = {
   auth: ['Auth', 'Sessions'],
   org: ['Org', 'Org Settings', 'Org Users', 'Org Roles', 'Org Permissions', 'Org Invitations'],
-  portals: ['portals'],
+  portals: ['Portals', 'Portal Users', 'Request Types', 'Request Type Fields', 'Workflows', 'Portal Requests', 'Tasks', 'Task Comments'],
   requests: ['Requests'],
-  citizen: ['citizen'],
+  citizen: ['Citizen', 'Citizen Auth', 'Citizen Request Types', 'Citizen Requests'],
 }
 
 const subgroupLabels: Record<string, string> = {
@@ -21,9 +21,19 @@ const subgroupLabels: Record<string, string> = {
   'Org Roles': 'Roles',
   'Org Permissions': 'Permissions',
   'Org Invitations': 'Invitations',
-  portals: 'Portals',
+  Portals: 'Portals',
+  'Portal Users': 'Portal Users',
+  'Request Types': 'Request Types',
+  'Request Type Fields': 'Request Type Fields',
+  Workflows: 'Workflows',
+  'Portal Requests': 'Portal Requests',
+  Tasks: 'Tasks',
+  'Task Comments': 'Task Comments',
   Requests: 'Requests',
-  citizen: 'Citizen',
+  Citizen: 'Citizen',
+  'Citizen Auth': 'Authentication',
+  'Citizen Request Types': 'Request Types',
+  'Citizen Requests': 'Requests',
 }
 
 export async function generateStaticParams() {
