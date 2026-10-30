@@ -4,6 +4,7 @@ const nav = [
   {
     title: 'Guides',
     links: [
+      { href: '/docs/guides/introduction', label: 'Introduction' },
       { href: '/docs/guides/getting-started', label: 'Getting Started' },
     ],
   },
