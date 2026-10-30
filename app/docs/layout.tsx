@@ -37,6 +37,9 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           <a href="/llms.txt" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
             ↗ llms.txt
           </a>
+          <a href="/llms-full.txt" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+            ↗ llms-full.txt
+          </a>
         </div>
         <nav className="space-y-6">
           {nav.map((section) => (
