@@ -12,6 +12,20 @@ const tagMap: Record<string, string[]> = {
   citizen: ['citizen'],
 }
 
+const subgroupLabels: Record<string, string> = {
+  Auth: 'Authentication',
+  Sessions: 'Sessions',
+  Org: 'Organization',
+  'Org Settings': 'Settings',
+  'Org Users': 'Users',
+  'Org Roles': 'Roles',
+  'Org Permissions': 'Permissions',
+  'Org Invitations': 'Invitations',
+  portals: 'Portals',
+  Requests: 'Requests',
+  citizen: 'Citizen',
+}
+
 export async function generateStaticParams() {
   return Object.keys(tagMap).map((tag) => ({ tag }))
 }
@@ -22,12 +36,15 @@ export default async function ReferenceTagPage({ params }: { params: Promise<{ t
   if (!matchedTags) notFound()
 
   const spec = getOpenApiSpec()
-  const endpoints: { method: string; path: string; summary: string; operationId: string }[] = []
+  const groups: Record<string, { method: string; path: string; summary: string; operationId: string }[]> = {}
+
+  for (const subTag of matchedTags) groups[subTag] = []
 
   for (const [path, methods] of Object.entries(spec.paths as Record<string, any>)) {
     for (const [method, op] of Object.entries(methods as Record<string, any>)) {
-      if (matchedTags.includes(op.tags?.[0])) {
-        endpoints.push({
+      const subTag = op.tags?.[0]
+      if (subTag && groups[subTag] !== undefined) {
+        groups[subTag].push({
           method,
           path,
           summary: op.summary ?? '',
@@ -37,23 +54,40 @@ export default async function ReferenceTagPage({ params }: { params: Promise<{ t
     }
   }
 
+  const hasMultipleGroups = matchedTags.length > 1
+
   return (
     <div>
       <h1 className="text-2xl font-bold capitalize mb-6">{tag}</h1>
-      <div className="space-y-2">
-        {endpoints.map((e) => (
-          <Link
-            key={`${e.method}-${e.path}`}
-            href={`/docs/reference/${tag}/${e.operationId}`}
-            className="flex items-start gap-3 p-3 border rounded hover:bg-gray-50 transition-colors no-underline"
-          >
-            <MethodBadge method={e.method} />
-            <div>
-              <span className="font-mono text-sm text-gray-900">{e.path}</span>
-              {e.summary && <p className="text-gray-500 text-xs mt-0.5">{e.summary}</p>}
-            </div>
-          </Link>
-        ))}
+      <div className="space-y-8">
+        {matchedTags.map((subTag) => {
+          const endpoints = groups[subTag]
+          if (!endpoints.length) return null
+          return (
+            <section key={subTag}>
+              {hasMultipleGroups && (
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">
+                  {subgroupLabels[subTag] ?? subTag}
+                </h2>
+              )}
+              <div className="space-y-2">
+                {endpoints.map((e) => (
+                  <Link
+                    key={`${e.method}-${e.path}`}
+                    href={`/docs/reference/${tag}/${e.operationId}`}
+                    className="flex items-start gap-3 p-3 border rounded hover:bg-gray-50 transition-colors no-underline"
+                  >
+                    <MethodBadge method={e.method} />
+                    <div>
+                      <span className="font-mono text-sm text-gray-900">{e.path}</span>
+                      {e.summary && <p className="text-gray-500 text-xs mt-0.5">{e.summary}</p>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )
+        })}
       </div>
     </div>
   )
